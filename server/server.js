@@ -10,8 +10,8 @@ app.use(express.json())
 
 // Connect to the MongoDB database named 'dbconnect' on localhost
 mongoose.connect('mongodb://localhost:27017/dbconnect')
-     .then(() => console.log('Connected to MongoDB')) // Log success if connected
-     .catch(err => console.error('MongoDB connection error:', err)) // Log error if connection fails
+     .then(() => console.log('Connected to MongoDB'))
+     .catch(err => console.error('MongoDB connection error:', err)) 
 
 // Define a User model with 'name' and 'email' fields, both as strings
 const User = mongoose.model('User', {
@@ -21,16 +21,16 @@ const User = mongoose.model('User', {
 
 // Define a POST endpoint to add a new user
 app.post ("/api/users", async (req ,res) => {
-    console.log('POST request received:', req.body) // Log the incoming request body
+    console.log('POST request received:', req.body)
     try {
-        const user = new User(req.body) // Create a new User instance from the request body
-        console.log('User object created:', user) // Log the created user object
-        await user.save() // Save the user to the database
-        console.log('User saved to database') // Log success message
-        res.json({ message: "User added", user}) // Respond with a success message and the user object
+        const user = new User(req.body) 
+        console.log('User object created:', user)
+        await user.save() 
+        console.log('User saved to database') 
+        res.json({ message: "User added", user})
     } catch (error) {
-        console.error('Error saving user:', error) // Log any error that occurs
-        res.status(500).json({ message: "Error adding user", error: error.message}) // Respond with error message
+        console.error('Error saving user:', error) 
+        res.status(500).json({ message: "Error adding user", error: error.message}) 
     }
 })
 
