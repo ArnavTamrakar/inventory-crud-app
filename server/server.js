@@ -3,70 +3,72 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const app = express()
 
-// Enable CORS for all routes (allows frontend to access backend)
 app.use(cors())
-// Parse incoming JSON requests and put the parsed data in req.body
 app.use(express.json())
 
-// Connect to the MongoDB database named 'dbconnect' on localhost
 mongoose.connect('mongodb://localhost:27017/dbconnect')
      .then(() => console.log('Connected to MongoDB'))
-     .catch(err => console.error('MongoDB connection error:', err)) 
+     .catch(err => console.error('MongoDB connection error:', err))
 
-// Define a User model with 'name' and 'email' fields, both as strings
-const User = mongoose.model('User', {
+// Product model
+const Product = mongoose.model('Product', {
     name: String,
-    email: String, 
+    sku: String,
+    category: String,
+    unit_price: Number,
+    quantity_in_stock: Number,
 })
 
-// Define a POST endpoint to add a new user
-app.post ("/api/users", async (req ,res) => {
-    console.log('POST request received:', req.body)
+// PRODUCT ENDPOINTS
+
+// Add a new product
+app.post("/api/products", async (req, res) => {
     try {
-        const user = new User(req.body) 
-        console.log('User object created:', user)
-        await user.save() 
-        console.log('User saved to database') 
-        res.json({ message: "User added", user})
+        const product = new Product(req.body)
+        await product.save()
+        res.json({ message: "Product added", product })
     } catch (error) {
-        console.error('Error saving user:', error) 
-        res.status(500).json({ message: "Error adding user", error: error.message}) 
+        res.status(500).json({ message: "Error adding product", error: error.message })
     }
 })
 
-app.get("/api/users", async (req, res) => {
+// Get all products
+app.get("/api/products", async (req, res) => {
     try {
-        const users = await User.find();
-        res.json(users);
+        const products = await Product.find();
+        res.json(products);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching users", error: error.message})
+        res.status(500).json({ message: "Error fetching products", error: error.message })
     }
-});
+})
 
-app.put("/api/users/:id", async (req,res) => {
+// Update a product
+app.put("/api/products/:id", async (req, res) => {
     try {
-        const updateUser = await User.findByIdAndUpdate(
+        const updatedProduct = await Product.findByIdAndUpdate(
             req.params.id,
             req.body,
-            { new: true}
+            { new: true }
         );
-        
-        if (!updateduser) {
-            return res.status(404).json({message: "User not found"})
+        if (!updatedProduct) {
+            return res.status(404).json({ message: "Product not found" })
         }
-        res.json(updatedUser);
+        res.json(updatedProduct);
     } catch (error) {
-        res.status(500).json({message: "Error updating user", error: error.message });
-    };
-})
-
-app.delete("/api/users/:id", async (req, res) => {
-    try {
-        await User.findByIdAndDelete(req.params.id);
-        res.json({message: "User deleted"});
-    } catch (error) {
-        res.status(500).json({message: "Error deleting user", error: error.message});
+        res.status(500).json({ message: "Error updating product", error: error.message });
     }
 })
-// Start the server and listen on port 5000
-app.listen(5000, () => {console.log("Server has started")})
+
+// Delete a product
+app.delete("/api/products/:id", async (req, res) => {
+    try {
+        await Product.findByIdAndDelete(req.params.id);
+        res.json({ message: "Product deleted" });
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting product", error: error.message });
+    }
+})
+
+// (Keep your user endpoints if you still need them)
+
+app.listen(5000, () => { console.log("Server has started") })
