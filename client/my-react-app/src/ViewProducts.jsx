@@ -10,7 +10,7 @@ import {
   Button, 
   Typography 
 } from '@mui/material';
-import EditUser from './EditUser';
+import EditProduct from './EditProduct';
 import Navbar from './Navbar';
 
 
@@ -135,7 +135,7 @@ function ViewProducts() {
         
         {/* Show EditProduct component when editing */}
         {editingProduct && (
-          <EditUser 
+          <EditProduct 
             productId={editingProduct}
             onClose={() => setEditingProduct(null)}
             onUpdate={handleEdit}

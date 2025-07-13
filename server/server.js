@@ -13,7 +13,7 @@ mongoose.connect('mongodb://localhost:27017/dbconnect')
 // Product model
 const Product = mongoose.model('Product', {
     name: String,
-    sku: String,
+    sku: { type: String, unique: true }, // Makes SKU unique
     category: String,
     unit_price: Number,
     quantity_in_stock: Number,
@@ -24,11 +24,24 @@ const Product = mongoose.model('Product', {
 // Add a new product
 app.post("/api/products", async (req, res) => {
     try {
-        const product = new Product(req.body)
-        await product.save()
-        res.json({ message: "Product added", product })
+        const { sku } = req.body;
+        
+        // Check if product with same SKU exists
+        const existingProduct = await Product.findOne({ sku });
+        
+        if (existingProduct) {
+            // Update quantity instead of creating new
+            existingProduct.quantity_in_stock += parseInt(req.body.quantity_in_stock);
+            await existingProduct.save();
+            res.json({ message: "Product quantity updated", product: existingProduct });
+        } else {
+            // Create new product
+            const product = new Product(req.body);
+            await product.save();
+            res.json({ message: "Product added", product });
+        }
     } catch (error) {
-        res.status(500).json({ message: "Error adding product", error: error.message })
+        res.status(500).json({ message: "Error adding product", error: error.message });
     }
 })
 
